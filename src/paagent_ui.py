@@ -93,3 +93,58 @@ pa-agent是开源项目，承诺100%不窥探用户隐私，请您放心使用
         #topsizer.Add(wx.StaticText(self, -1, "", size=(-1, 20)))    #纯粹增加边距
         #final
         self.SetSizer(topsizer)
+
+
+class   CPaagentTrayIcon(wx.TaskBarIcon):
+
+    def __init__(self):
+        wx.TaskBarIcon.__init__(self)
+
+        self.TBMENU_RESTORE = wx.NewId()
+        self.TBMENU_CLOSE   = wx.NewId()
+        
+        self.iconNormal = wx.Icon(ur'..\resource\chain_direct.ico', wx.BITMAP_TYPE_ICO)
+        self.iconMsg = wx.Icon(ur'..\resource\chain_direct.ico', wx.BITMAP_TYPE_ICO)
+        self.OnTrayShow_Normal()
+        
+#        self.imgidx = 1
+
+        self.menu = self.CreatePopupMenu()
+
+        # bind some events
+        #self.Bind(wx.EVT_TASKBAR_LEFT_UP, self.OnTaskBarActivate)
+        #self.Bind(wx.EVT_MENU, self.OnTaskBarActivate, id=self.TBMENU_RESTORE)
+        #self.Bind(wx.EVT_MENU, self.OnTaskBarClose, id=self.TBMENU_CLOSE)
+
+    def CreatePopupMenu(self):
+        menu = wx.Menu()
+        menu.Append(self.TBMENU_RESTORE, u'显示主窗口')
+        menu.Append(self.TBMENU_CLOSE, u'退出')
+#        menu.AppendSeparator()
+
+        return menu
+
+    def OnTrayShow_Msg(self):
+        self.SetIcon(self.iconMsg, u'您有新的消息，请及时查收')
+
+    def OnTrayShow_Normal(self):
+        self.SetIcon(self.iconNormal, u'pa-agent')
+
+    def OnTaskBarActivate(self, evt):
+        self.OnTrayShow_Normal()
+        if self.frame.IsIconized():
+            self.frame.Restore()
+            self.frame.Show()
+            #下面这一句，使得对话窗显示到最前端
+            self.frame.Raise()
+        else:
+            self.frame.Iconize()
+            self.frame.Hide()
+
+    def OnTaskBarClose(self, evt):
+        #自行删除图标，再调用上级的Close；或调用上级的另一个接口，由上级负责删除托盘图标，都可以。
+        #出于事件通知完整性的考虑，自行删除图标，再将退出事件通知上级，应该是比较不错的做法
+        
+        self.RemoveIcon()                   #这一步可以取消系统托盘区的图标，否则程序退出后图标一直还在
+        #wx.CallAfter(self.frame.Close)      #直接close了，没有机会响应其它工作
+        wx.CallAfter(self.frame.OnExit2)    #包装了另一个接口，它做了该做的事情后，再调用Close退出程序

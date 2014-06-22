@@ -25,6 +25,7 @@ class   CPaagentApp(wx.App):
         self.isOnDestroy = [False]
 
         self.dlg = paagent_ui.CPaagentDlg(None, -1, 'pa-agent', size=(300, -1))
+        self.tray = paagent_ui.CPaagentTrayIcon()
         
         #控件初始值的填充(与UI没有十分明确的界限，但不妨，视情况而调整)
         self.InitDefaultValue()
