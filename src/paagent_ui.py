@@ -7,7 +7,7 @@ class CPaagentDlg(wx.Dialog):
 
     ABOUT_INFO_PER_LINE = ur'''关于pa-agent(1.0)：
 pa-agent是一款小巧的网络工具，提高对国外网站的访问质量；
-pa-agent是开源项目，承诺100%不窥探用户隐私，请您放心使用
+pa-agent是开源项目，承诺100%不窥探用户隐私，请您放心使用。
 '''
     
     def __init__(
@@ -66,7 +66,8 @@ pa-agent是开源项目，承诺100%不窥探用户隐私，请您放心使用
         #不设置size，或size[1] < 某个值(随布局改变，数值不一样)，多行显示都不完整；
         #但是，size[1] > 某个值后，设置再大的值，也只是多行显示完整，但没有多出来的空间
         #如果self.aboutInfo之后有其它控件，size参数都可以不指定了
-        self.aboutInfo = wx.StaticText(self, -1, CPaagentDlg.ABOUT_INFO_PER_LINE)
+        #增加了CreateButtonArea之后，必须指定dialog的高，及aboutInfo的高，才能够正常显示了。
+        self.aboutInfo = wx.StaticText(self, -1, CPaagentDlg.ABOUT_INFO_PER_LINE, size=(-1, 90))
         ret_sizer.Add(self.aboutInfo, flag = wx.ALIGN_LEFT | wx.LEFT | wx.RIGHT, border=10)
         
         project_hl = hl.HyperLinkCtrl(self, -1, "了解更多信息，请访问项目主页",
@@ -76,21 +77,30 @@ pa-agent是开源项目，承诺100%不窥探用户隐私，请您放心使用
         return ret_sizer
 
     def CreateSettingArea(self):
-        pass
+
+        ret_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        self.btnAutoRun = wx.ToggleButton(self, -1, u"开机运行")
+        ret_sizer.Add(self.btnAutoRun, flag = wx.ALIGN_RIGHT | wx.RIGHT, border=10)
+        self.btnAutoUpdate = wx.ToggleButton(self, -1, u"自动更新")
+        ret_sizer.Add(self.btnAutoUpdate, flag = wx.ALIGN_RIGHT | wx.RIGHT, border=10)        
+        
+        return ret_sizer
 
 
     def CreateUI(self):
         
         topsizer = wx.BoxSizer(wx.VERTICAL)
-        topsizer.Add(wx.StaticText(self, -1, "", size=(-1, 20)))    #纯粹增加边距
+        topsizer.Add(wx.StaticText(self, -1, "", size=(-1, 10)))    #纯粹增加边距
         topsizer.Add(self.CreateButtonArea(), flag = wx.ALIGN_CENTER_HORIZONTAL)
         
-        topsizer.Add(wx.StaticText(self, -1, "", size=(-1, 40)))    #纯粹增加边距
-        wx.StaticLine(self, -1, pos=(0,70), size=(300,1), style=wx.LI_VERTICAL)
+        wx.StaticLine(self, -1, pos=(0,50), size=(300,1), style=wx.LI_VERTICAL)
+        topsizer.Add(wx.StaticText(self, -1, "", size=(-1, 20)))    #纯粹增加边距
+        topsizer.Add(self.CreateSettingArea(), flag = wx.ALIGN_CENTER_HORIZONTAL)
 
+        wx.StaticLine(self, -1, pos=(0,100), size=(300,1), style=wx.LI_VERTICAL)
+        topsizer.Add(wx.StaticText(self, -1, "", size=(-1, 25)))    #纯粹增加边距
         topsizer.Add(self.CreateAboutArea())
-
-        #topsizer.Add(wx.StaticText(self, -1, "", size=(-1, 20)))    #纯粹增加边距
+        
         #final
         self.SetSizer(topsizer)
 
