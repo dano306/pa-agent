@@ -42,13 +42,51 @@ class   CPaagentApp(wx.App):
         pass
 
     def RegisterEventHandle(self):
+        
+        #注册dialog的事件
+        self.dlg.Bind(wx.EVT_CHAR_HOOK, self.OnEvtCharHook)
+        self.dlg.Bind(wx.EVT_ICONIZE, self.OnIconize)
         self.dlg.Bind(wx.EVT_CLOSE, self.OnDestroy)
+
+        #注册tray的事件
+        self.tray.Bind(wx.EVT_TASKBAR_LEFT_UP, self.OnTaskBarActivate)
+        self.tray.Bind(wx.EVT_MENU, self.OnTaskBarClose, id=self.tray.TBMENU_CLOSE)
+
+
+    def OnEvtCharHook(self, evt):
+        if evt.KeyCode == wx.WXK_ESCAPE :
+            self.dlg.Iconize()
+            self.dlg.Hide()
+        else :
+            #print 'this is not escape key'
+            evt.Skip()
+
+    def OnIconize(self, evt):
+        self.dlg.Iconize()
+        self.dlg.Hide()
 
     def OnDestroy(self, evt):
         
         self.isOnDestroy[0] = True
+        self.tray.RemoveIcon()
         self.dlg.Destroy()
         #必须有这一句调用，win7的任务管理器里，exe进程才会消失，否则，程序退出了但进程还在，一直占用着资源
+        wx.GetApp().Exit()
+
+    def OnTaskBarActivate(self, evt):
+        #self.OnTrayShow_Normal()
+        if self.dlg.IsIconized():
+            self.dlg.Restore()
+            self.dlg.Show()
+            #下面这一句，使得对话窗显示到最前端
+            self.dlg.Raise()
+        else:
+            self.dlg.Iconize()
+            self.dlg.Hide()
+
+    def OnTaskBarClose(self, evt):
+        self.tray.RemoveIcon()                   #这一步可以取消系统托盘区的图标，否则程序退出后图标一直还在
+        self.dlg.Close()
         wx.GetApp().Exit()
 
 if __name__ == '__main__' :
